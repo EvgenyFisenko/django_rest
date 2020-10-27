@@ -27,5 +27,6 @@ class ReviewCreateView(APIView):
         review = ReviewCreateSerializer(data=request.data)
         if review.is_valid():
             review.save()
-        return Response(status=201)
-
+            return Response(status=201)
+        else:
+            return Response(status=400)
