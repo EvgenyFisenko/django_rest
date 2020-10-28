@@ -2,11 +2,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Movie
-from .serializers import MovieListSerializer, MovieDetailSerializer, ReviewCreateSerializer
+from .serializers import MovieListSerializer, MovieDetailSerializer, ReviewCreateSerializer, CreateRatingSerializer
 
 
 class MovieListView(APIView):
     """ вывод списка фильмов """
+
     def get(self, request):
         movies = Movie.objects.filter(draft=False)
         serializer = MovieListSerializer(movies, many=True)
@@ -15,6 +16,7 @@ class MovieListView(APIView):
 
 class MovieDetailView(APIView):
     """ вывод фильма """
+
     def get(self, request, pk):
         movie = Movie.objects.get(id=pk, draft=False)
         serializer = MovieDetailSerializer(movie)
@@ -23,10 +25,31 @@ class MovieDetailView(APIView):
 
 class ReviewCreateView(APIView):
     """ добавление отзыва к фильму """
+
     def post(self, request):
         review = ReviewCreateSerializer(data=request.data)
         if review.is_valid():
             review.save()
+            return Response(status=201)
+        else:
+            return Response(status=400)
+
+
+class AddStarRatingView(APIView):
+    """ добавление рейтенга """
+
+    def get_client_ip(self, request):
+        x_forwaded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwaded_for:
+            ip = x_forwaded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    def post(self, request):
+        serializer = CreateRatingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(ip=self.get_client_ip(request))
             return Response(status=201)
         else:
             return Response(status=400)
