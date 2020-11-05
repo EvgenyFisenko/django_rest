@@ -2,7 +2,7 @@ from django.db import models
 from rest_framework import generics, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Movie, Actor
+from .models import Movie, Actor, Review
 from .serializers import (MovieListSerializer,
                           MovieDetailSerializer,
                           ReviewCreateSerializer,
@@ -10,6 +10,7 @@ from .serializers import (MovieListSerializer,
                           ActorListSerializer,
                           ActorDetailSerializer)
 from .service import get_client_ip, MovieFilter
+from .permissions import IsSuperUser
 
 
 class ActorListView(generics.ListAPIView):
@@ -46,12 +47,20 @@ class MovieDetailView(generics.RetrieveAPIView):
 
     queryset = Movie.objects.filter(draft=False)
     serializer_class = MovieDetailSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class ReviewCreateView(generics.CreateAPIView):
     """ добавление отзыва к фильму """
 
     serializer_class = ReviewCreateSerializer
+    permission_classes = [IsSuperUser]
+
+
+class ReviewDestroyView(generics.DestroyAPIView):
+    """ удаление отзыва к фильму """
+
+    queryset = Review.objects.all()
 
 
 class AddStarRatingView(generics.CreateAPIView):
