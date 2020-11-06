@@ -54,7 +54,6 @@ class ReviewCreateView(generics.CreateAPIView):
     """ добавление отзыва к фильму """
 
     serializer_class = ReviewCreateSerializer
-    permission_classes = [IsSuperUser]
 
 
 class ReviewDestroyView(generics.DestroyAPIView):
