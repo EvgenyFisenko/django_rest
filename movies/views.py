@@ -9,14 +9,15 @@ from .serializers import (MovieListSerializer,
                           CreateRatingSerializer,
                           ActorListSerializer,
                           ActorDetailSerializer)
-from .service import get_client_ip, MovieFilter
+from .service import get_client_ip, MovieFilter, PaginationActor
 
 
 # переписываем все на ReadOnlyModelViewSet
 
 class ActorViewSet(viewsets.ReadOnlyModelViewSet):
     """Вывод актеров или режиссеров"""
-    queryset = Actor.objects.all()
+    queryset = Actor.objects.all().order_by('id')
+    pagination_class = PaginationActor
 
     def get_serializer_class(self):
         if self.action == 'list':
